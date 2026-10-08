@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Employee</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 18px 30px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .response {
+            margin-top: 25px;
+            padding: 18px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            min-height: 60px;
+        }
+
+        .status {
+            margin-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    🤖 AI Employee
+</div>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>Business AI Assistant</h2>
+        <p>Ask your AI employee to help with business tasks.</p>
+
+        <label for="companyId">Company ID</label>
+        <input
+            id="companyId"
+            type="number"
+            value="1"
+            min="1"
+        >
+
+        <label for="message">Your request</label>
+        <textarea
+            id="message"
+            placeholder="Ask your AI employee something..."
+        ></textarea>
+
+        <button onclick="sendMessage()">
+            Send to AI Employee
+        </button>
+
+        <div class="status" id="status"></div>
+
+        <div class="response" id="response">
+            AI response will appear here.
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+async function sendMessage() {
+
+    const companyId = Number(
+        document.getElementById("companyId").value
+    );
+
+    const message =
+        document.getElementById("message").value.trim();
+
+    const responseBox =
+        document.getElementById("response");
+
+    const status =
+        document.getElementById("status");
+
+    if (!message) {
+        responseBox.textContent = "Please enter a message.";
+        return;
+    }
+
+    status.textContent = "AI Employee is thinking...";
+    responseBox.textContent = "";
+
+    try {
+
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                company_id: companyId,
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Request failed");
+        }
+
+        responseBox.textContent = data.answer;
+        status.textContent = "Response received.";
+
+    } catch (error) {
+
+        status.textContent = "Error";
+        responseBox.textContent = error.message;
+
+    }
+}
+</script>
+
+</body>
+</html>
